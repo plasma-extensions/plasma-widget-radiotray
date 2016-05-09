@@ -1,0 +1,21 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Radio Widget
+Name[es]=Radio Widget
+Comment=Plasma5 applet that allows you to play internet radio from your panel.
+Comment[es]=Componente de Plasma5 que le permite reproducir estaciones de radio online desde su panel.
+Type=Service
+Icon=radio-tray
+#X-KDE-ParentApp=
+#X-KDE-PluginInfo-Author=
+#X-KDE-PluginInfo-Email=
+X-KDE-PluginInfo-License=GPL3
+X-KDE-PluginInfo-Name=org.plasma-light.radio
+X-KDE-PluginInfo-Version=0.1.0
+X-KDE-PluginInfo-Website=https://github.com/plasma-light/plasma-widget-radio
+X-KDE-PluginInfo-Category=Utilities
+X-KDE-ServiceTypes=Plasma/Applet
+X-Plasma-API=declarativeappletscript
+X-Plasma-MainScript=ui/main.qml
+X-Plasma-RemoteLocation=
+X-Plasma-StandAloneApp=true
