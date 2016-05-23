@@ -5,6 +5,8 @@
 #include <QtQml>
 #include <QDebug>
 
+#include <vlc-qt/Common.h>
+
 void PlasmoidPlugin::registerTypes(const char *uri)
 {
     Q_ASSERT(uri == QLatin1String("org.kde.private.radioplayer"));

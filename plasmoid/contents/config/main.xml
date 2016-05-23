@@ -6,14 +6,9 @@
     <kcfgfile name=""/>
 
     <group name="General">
-	<entry name="showPointer" type="Bool">
-            <default>false</default>
-        </entry>
-        <entry name="delayTime" type="Int">
-            <default>2</default>
-        </entry>
-	<entry name="copyToClipboard" type="Bool">
-            <default>true</default>
+	<entry name="mediaUrl" type="String">
+	  <label>Radio urls</label>
+	  <default>file:///home/alexis/Escritorio/pl.xspf</default>
         </entry>
     </group>
 </kcfg>

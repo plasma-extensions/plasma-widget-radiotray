@@ -1,8 +1,3 @@
-find_package(PkgConfig)
-pkg_search_module(LIBVLC REQUIRED libvlc)
-
-message(STATUS "INCLUDE: " ${LIBVLC_INCLUDE_DIRS})
-
 set(plasmoidplugin_SRCS
     plasmoidplugin.cpp
     radioplayer.cpp
@@ -12,8 +7,8 @@ set(plasmoidplugin_SRCS
 
 add_library(plasmoidplugin SHARED ${plasmoidplugin_SRCS})
 
-target_include_directories(plasmoidplugin PUBLIC ${LIBVLC_INCLUDE_DIRS})
-target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma ${LIBVLC_LIBRARIES})
+target_include_directories(plasmoidplugin PUBLIC ${LIBVLCQT_INCLUDE_DIR} ${LIBVLCQT_INCLUDE_DIR} )
+target_link_libraries(plasmoidplugin Qt5::Quick KF5::Plasma vlc vlc-qt)
 
 install(TARGETS plasmoidplugin DESTINATION ${QML_INSTALL_DIR}/org/kde/private/radioplayer)
 

@@ -20,13 +20,20 @@
 #ifndef RADIOPLAYER_H
 #define RADIOPLAYER_H
 
-#include <vlc/libvlc.h>
-#include <vlc/libvlc_media.h>
-#include <vlc/libvlc_media_player.h>
-
 #include <QObject>
+#include <QStringList>
+#include <QPixmap>
 
+class VlcInstance;
+class VlcMediaList;
+class VlcMediaPlayer;
+class VlcMediaListPlayer;
+class VlcMetaManager;
+class VlcMedia;
 
+#include <vlc-qt/Enums.h>
+
+struct libvlc_media_t;
 
 class RadioPlayer : public QObject
 {
@@ -35,19 +42,45 @@ class RadioPlayer : public QObject
 public:
     RadioPlayer();
     ~RadioPlayer();
+    
+    static void handleMetaChangedEvent(const struct libvlc_event_t * event, void *player);
 
 public Q_SLOTS:
-  void setMedia(QString url);
+  
   void play();
   void pause();
+  void forward();
+  void backward();
   
+  QString getCurrentTrackTitle();
+  QString getCurrentTrackGenre();
+  QString getCurrentTrackArtworkUrl();
+  QString getCurrentTrackBitrate();
   
+  void addMedia(QString url);
+  void removeMedia(int idx);
+  QStringList getPlaylist();
+  
+  void handleNextItemSet(libvlc_media_t * media);
+  //void handleMediaStateChanged(const Vlc::State &);
+  
+Q_SIGNALS:
+   void played();
+   void stopped();
+   void updateInfo();
+   
 private:
-     libvlc_instance_t * inst;
-     libvlc_media_player_t *mp;
-
-     libvlc_time_t length;
-     int wait_time=5000;
+    VlcInstance *_instance;
+    VlcMediaListPlayer * _mediaListPlayer;
+    VlcMediaList * _mediaList;
+    // VlcMediaPlayer *_player;
+    // int _listidx;
+    
+    // VlcMedia * _currentMedia;
+    libvlc_media_t * _currentMedia;
+    //VlcMetaManager * _metaManager;
+    
+    // int wait_time=5000;
 };
 
 #endif // RADIOPLAYER_H
