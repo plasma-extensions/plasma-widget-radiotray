@@ -153,6 +153,17 @@ void RadioPlayer::addMedia(QString url)
   _mediaList->addMedia(new VlcMedia(url, _instance));
 }
 
+void RadioPlayer::playMedia(QString url)
+{
+  _mediaListPlayer->stop();
+  delete _mediaList;
+  _mediaList = new VlcMediaList(_instance);
+  _mediaList->addMedia(new VlcMedia(url, _instance));
+  _mediaListPlayer->setMediaList(_mediaList);
+  _mediaListPlayer->play();
+}
+
+
 void RadioPlayer::removeMedia(int idx)
 {
     _mediaList->removeMedia(idx);

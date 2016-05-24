@@ -1,10 +1,8 @@
 import QtQuick 2.0
+import QtQuick.Layouts 1.1
  
-Rectangle {
-  id: delegateItem
-  width: parent.width; height: 100
-  color: "blue"
- 
+RowLayout  {
+  spacing: 10
   Text {
     id: idxText
     text: idx
@@ -12,13 +10,24 @@ Rectangle {
   
   Text {
     id: stationText
-    anchors.left: idxText.right
     text: station
+    wrapMode: Text.WrapAnywhere
+    elide: Text.ElideRight
   }
   
+  MouseArea {
+    anchors.fill: parent
+    onClicked: {
+      playListView.currentIndex = index
+      radioplayer.playMedia(station);
+    }
+  }
+
+  /* TODO: Implement bitrate for radio sources
   Text {
     id: bitrateText
     anchors.left: stationText.right
     text: station
-  }
+  }*/
+   
 }

@@ -61,6 +61,7 @@ public Q_SLOTS:
  
   int getCurrentMediaIdx();
   
+  void playMedia(QString url);
   void addMedia(QString url);
   void removeMedia(int idx);
   QString getListItemUrl(int idx);

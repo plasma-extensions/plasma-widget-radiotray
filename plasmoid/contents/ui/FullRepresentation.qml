@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.5
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.3
 import org.kde.plasma.plasmoid 2.0
@@ -12,7 +12,10 @@ import '../code/Config.js' as Config
 
 ColumnLayout {
   id: root
-  anchors.fill: parent
+  //anchors.fill: parent
+  
+  Layout.preferredWidth: 380; Layout.maximumWidth: 380;
+  Layout.preferredHeight : 88; Layout.maximumHeight : 88
   
   property int negative_margin: -7
   anchors.topMargin: negative_margin 
@@ -20,7 +23,6 @@ ColumnLayout {
   
   anchors.leftMargin: negative_margin + 1
   anchors.rightMargin: negative_margin + 1
-  
   
   RadioPlayer {
     id: radioplayer;
@@ -81,18 +83,14 @@ ColumnLayout {
     //columnSpacing: 4
     columns: 6
     rows: 7
-    Layout.maximumWidth: 400; /*Layout.maximumHeight: 21;*/
     
-    Item {
-      Layout.column: 1
-      Layout.row: 1
-      width: 10
-    }
-    Item {
-      Layout.column: 5
-      Layout.row: 1
-      width: 10
-    }
+    Layout.preferredWidth: 380; Layout.maximumWidth: 380;
+    Layout.preferredHeight : 88; Layout.maximumHeight : 88
+    
+    Layout.topMargin : 15;
+    Layout.bottomMargin : 10;
+    Layout.leftMargin: 21;
+    Layout.rightMargin: 21;
 
     Label {
       Layout.column: 2
@@ -163,25 +161,56 @@ ColumnLayout {
     }
     
   }
-  
-  ScrollView { 
-    id: playListScroll
+
+
+  ScrollView {
+    id: playListScrollView
     visible: false
+    highlightOnFocus: true
     
-    /*ListModel {
-      id: playListModel
-    }*/
+    Layout.preferredWidth: 380; Layout.maximumWidth: 380;
+    Layout.preferredHeight : 88; Layout.maximumHeight : 88
+    
+    Layout.topMargin : 15;
+    Layout.bottomMargin : 10;
+    Layout.leftMargin: 21;
+    Layout.rightMargin: 21;
 
     ListView {
       id: playListView
-      anchors.fill: parent
-      model: playListModel              // concrete model
+      model: PlayListModel {}          // concrete model
       delegate: PlayListDelegate { }   // provide delegate component.
-      spacing: 4
-    }
+      
+      headerPositioning: ListView.OverlayHeader
+      header: Rectangle {
+	width: parent.width
+	height: childrenRect.height
+	color: "white"
+	z: 100;
+
+	RowLayout {
+	  spacing: 10
+	  Text {
+	    text: "#";
+	  }
+	  Text {
+	    text: "Station";
+	  }
+	}
+      }
     
+      highlightFollowsCurrentItem: true
+      highlight: Rectangle {
+	width: parent.width;
+	height: childrenRect.height;
+	color: "lightsteelblue";
+	focus: true
+      }
+      
+    }
   }
-  
+    
+
   
   RowLayout {
     id: ctr_box
@@ -198,7 +227,6 @@ ColumnLayout {
       tooltip : i18n("Shuffle")
       
       onClicked: {
-	
       }
     }
     
@@ -253,11 +281,11 @@ ColumnLayout {
 	tooltip : i18n("Show playlist")
 
 	onClicked: {
-	  console.log(info)
+	  //console.log(info)
 	  info.visible = !info.visible
-	  playListScroll.visible = !playListScroll.visible 
+	  playListScrollView.visible = !playListScrollView.visible 
 	  
-	  var playList = radioplayer.getPlayList();
+	  //var playList = radioplayer.getPlayList();
 	  //console.log(radioplayer.getPlayList());
 	    
 	}
