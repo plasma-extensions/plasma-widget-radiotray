@@ -21,23 +21,34 @@ ColumnLayout {
   anchors.leftMargin: negative_margin + 1
   anchors.rightMargin: negative_margin + 1
   
-  Component.onCompleted: {
-    plasmoid.addEventListener('ConfigChanged', Config.configChanged);
-  }
-  
   
   RadioPlayer {
     id: radioplayer;
     
     onUpdateInfo: {
-      console.log("Updating !!")
-      title.text = radioplayer.getCurrentTrackTitle()
-      genre.text = radioplayer.getCurrentTrackGenre()
-      artwork.source = radioplayer.getCurrentTrackArtworkUrl()
+      console.log("Refreshing INFO");
+      
+      /* LOG PLAYLIST
+      console.log("list size: " + radioplayer.getMediaListSize());
+      for (var i = 0; i < radioplayer.getMediaListSize(); i ++) 
+	console.log(radioplayer.getListItemUrl(i));
+      var idx = radioplayer.getCurrentMediaIdx();
+      console.log("Track idx: " + idx);*/
+      
+      title.text = radioplayer.getMediaTitle() 
+      ratio.text = radioplayer.getMediaBitrate() + "kb";
+      genre.text = radioplayer.getMediaGenre();
+      artwork.source = radioplayer.getMediaArtworkUrl();
     }
     
     Component.onCompleted: {
       radioplayer.addMedia(plasmoid.configuration.mediaUrl);
+      
+      /* LOG PLAYLIST
+      console.log("list size: " + radioplayer.getMediaListSize());
+      for (var i = 0; i < radioplayer.getMediaListSize(); i ++)
+	console.log(radioplayer.getListItemUrl(i));*/
+      
     }
   }
   
@@ -60,7 +71,7 @@ ColumnLayout {
     color: "white"
     
     text: i18n("Radio"); 
-    font.family: "Noto Sans"; font.pointSize: 11;
+    font.family: "Noto Sans"; font.pointSize: 12;
     }
   }
 
@@ -70,6 +81,7 @@ ColumnLayout {
     //columnSpacing: 4
     columns: 6
     rows: 7
+    Layout.maximumWidth: 400; /*Layout.maximumHeight: 21;*/
     
     Item {
       Layout.column: 1
@@ -84,60 +96,118 @@ ColumnLayout {
 
     Label {
       Layout.column: 2
-      Layout.row: 1
+      Layout.row: 2
+      
       text: i18n("Now playing:")
+      font.family: "Noto Sans"; font.pointSize: 11;
     }
     
     Label {
       id: title
       Layout.column: 2
       Layout.row: 3
-      text: i18n("Nothing... - 0.0 kbit/s")
+      
+      Layout.preferredWidth: 150;
+      Layout.maximumWidth: 150;
+      wrapMode: Text.WrapAnywhere
+      elide: Text.ElideRight
+      maximumLineCount: 1;
+      
+      text: i18n("Nothing...")
+      font.family: "Noto Sans"; font.pointSize: 11;
     }
     
+    Label {
+      id: ratio
+      Layout.column: 3
+      Layout.row: 3
+      
+      Layout.preferredWidth: 50;
+      Layout.maximumWidth: 50;
+      wrapMode: Text.WrapAnywhere
+      elide: Text.ElideRight
+      maximumLineCount: 1;
+      
+      text: i18n("0.0 kbit/s")
+      font.family: "Noto Sans"; font.pointSize: 11;
+    }
     
     Label {
       id: genre
       Layout.column: 2
       Layout.row: 4
+      
+      Layout.preferredWidth: 150;
+      Layout.maximumWidth: 150;
+      wrapMode: Text.WrapAnywhere
+      elide: Text.ElideRight
+      maximumLineCount: 1;
+      
       text: i18n("Genre")
+      font.family: "Noto Sans"; font.pointSize: 11;
     }
     
     Image {
       id: artwork 
       Layout.column: 4
       Layout.row: 2
+      Layout.rowSpan: 3
       
-      source: radioplayer.getCurrentTrackArtworkUrl()
+      Layout.margins: 2
+      sourceSize.width: 88
+      sourceSize.height: 88
+
+      fillMode: Image.PreserveAspectFit
+      
+      source: radioplayer.getMediaArtworkUrl()
     }
     
   }
   
-   
-  GridLayout {
-    id: ctr_box
-    columns: 6
-    rows: 3
+  ScrollView { 
+    id: playListScroll
+    visible: false
     
-    Item {
-      Layout.column: 1
-      Layout.row: 1
-      width: 10
+    /*ListModel {
+      id: playListModel
+    }*/
+
+    ListView {
+      id: playListView
+      anchors.fill: parent
+      model: playListModel              // concrete model
+      delegate: PlayListDelegate { }   // provide delegate component.
+      spacing: 4
     }
-    Item {
-      Layout.column: 5
-      Layout.row: 1
-      width: 10
+    
+  }
+  
+  
+  RowLayout {
+    id: ctr_box
+    Layout.alignment: Qt.AlignHCenter
+    Layout.bottomMargin: 17
+    
+    
+    Button {
+      id: playmode_btn
+      Layout.leftMargin: 23
+      Layout.rightMargin: 36
+      
+      iconName: "media-playlist-shuffle"
+      tooltip : i18n("Shuffle")
+      
+      onClicked: {
+	
+      }
     }
     
     Button {
       id: backward_btn
-      Layout.column: 2
-      Layout.row: 2
-      Layout.alignment: Qt.AlignHCenter
+      Layout.rightMargin: 16
       
       iconName: "media-skip-backward"
-      tooltip : i18n("Prevoius media in playlist.")
+      tooltip : i18n("Prevoius media in playlist")
       
       onClicked: {
 	radioplayer.backward()
@@ -146,9 +216,7 @@ ColumnLayout {
 
     Button {
       id: play_btn
-      Layout.column: 3
-      Layout.row: 2
-      Layout.alignment: Qt.AlignHCenter
+      Layout.rightMargin: 16
       
       iconName: "media-playback-start"
       tooltip : i18n("Play.")
@@ -167,12 +235,10 @@ ColumnLayout {
 
     Button {
 	id: forward_btn
-	Layout.column: 4
-	Layout.row: 2
-	Layout.alignment: Qt.AlignHCenter
+	Layout.rightMargin: 36
 	
 	iconName: "media-skip-forward"
-	tooltip : i18n("Next media in playlist.")
+	tooltip : i18n("Next media in playlist")
 
 	onClicked: {
 	  radioplayer.forward()
@@ -181,15 +247,19 @@ ColumnLayout {
     
     Button {
 	id: list_btn
-	Layout.column: 5 
-	Layout.row: 2
-	Layout.alignment: Qt.AlignHCenter
+	Layout.rightMargin: 23
 	
 	iconName: "amarok_playlist"
-	tooltip : i18n("Show playlist.")
+	tooltip : i18n("Show playlist")
 
 	onClicked: {
-	  console.log("show playlist not implemented yet.")
+	  console.log(info)
+	  info.visible = !info.visible
+	  playListScroll.visible = !playListScroll.visible 
+	  
+	  var playList = radioplayer.getPlayList();
+	  //console.log(radioplayer.getPlayList());
+	    
 	}
     }
   }

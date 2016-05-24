@@ -48,21 +48,28 @@ public:
 public Q_SLOTS:
   
   void play();
+  //void play(int idx);
   void pause();
   void forward();
   void backward();
   
-  QString getCurrentTrackTitle();
-  QString getCurrentTrackGenre();
-  QString getCurrentTrackArtworkUrl();
-  QString getCurrentTrackBitrate();
+  QString getMediaTitle();
+  QString getMediaGenre();
+  QString getMediaArtworkUrl();
+  QString getMediaBitrate();
+  
+ 
+  int getCurrentMediaIdx();
   
   void addMedia(QString url);
   void removeMedia(int idx);
-  QStringList getPlaylist();
+  QString getListItemUrl(int idx);
+  int getMediaListSize();
   
   void handleNextItemSet(libvlc_media_t * media);
-  //void handleMediaStateChanged(const Vlc::State &);
+  void handlePlaying();
+  void savePlayList();
+  void loadPlayList();
   
 Q_SIGNALS:
    void played();
@@ -74,13 +81,14 @@ private:
     VlcMediaListPlayer * _mediaListPlayer;
     VlcMediaList * _mediaList;
     // VlcMediaPlayer *_player;
-    // int _listidx;
+    int _listidx;
     
     // VlcMedia * _currentMedia;
     libvlc_media_t * _currentMedia;
     //VlcMetaManager * _metaManager;
     
     // int wait_time=5000;
+    QString _settingsFile;
 };
 
 #endif // RADIOPLAYER_H

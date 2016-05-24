@@ -8,10 +8,7 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 
 Item {
     id: main
-
-    property bool showPointer: Plasmoid.configuration.showPointer
-    property int delayTime: Plasmoid.configuration.delayTime
-    
+  
     Layout.fillWidth: true
     Layout.fillHeight: true
     
