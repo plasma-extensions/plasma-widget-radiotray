@@ -48,7 +48,6 @@ public:
 public Q_SLOTS:
   
   void play();
-  //void play(int idx);
   void pause();
   void forward();
   void backward();
@@ -58,20 +57,11 @@ public Q_SLOTS:
   QString getMediaArtworkUrl();
   QString getMediaBitrate();
   
- 
-  int getCurrentMediaIdx();
-  
   void playMedia(QString url);
-  void addMedia(QString url);
-  void removeMedia(int idx);
-  QString getListItemUrl(int idx);
   int getMediaListSize();
   
-  void handleNextItemSet(libvlc_media_t * media);
   void handlePlaying();
-  void savePlayList();
-  void loadPlayList();
-  
+   
 Q_SIGNALS:
    void played();
    void stopped();

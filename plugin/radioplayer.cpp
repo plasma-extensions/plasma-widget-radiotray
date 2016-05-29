@@ -50,14 +50,10 @@ RadioPlayer::RadioPlayer()
     //_metaManager = NULL;
     _currentMedia = NULL;
     
-    //connect(_mediaListPlayer, SIGNAL(nextItemSet(libvlc_media_t*)),  this,  SLOT(handleNextItemSet(libvlc_media_t*)) );
-    //connect(_mediaListPlayer->mediaPlayer(), SIGNAL(mediaChanged(libvlc_media_t*)),  this,  SLOT(handleNextItemSet(libvlc_media_t*)) );
     connect(_mediaListPlayer->mediaPlayer(), SIGNAL(playing()),  this,  SLOT(handlePlaying()) );
-    qDebug() << "Object Created";
     
-    _settingsFile = QApplication::applicationDirPath().left(1) + ":/radioplayersettings.desktop";
+    qDebug() << "Radio object Created";
     _listidx = 0;
-    loadPlayList();
 }
 
 RadioPlayer::~RadioPlayer() {
@@ -68,12 +64,12 @@ RadioPlayer::~RadioPlayer() {
 
 void RadioPlayer::play()
 {
-  _mediaListPlayer->play();
+  _mediaListPlayer->mediaPlayer()->play();
 }
 
 void RadioPlayer::pause()
 {
-    _mediaListPlayer->stop();
+    _mediaListPlayer->mediaPlayer()->pause();
 }
 
 void RadioPlayer::backward()
@@ -148,11 +144,6 @@ int RadioPlayer::getMediaListSize()
 }
 
 
-void RadioPlayer::addMedia(QString url)
-{
-  _mediaList->addMedia(new VlcMedia(url, _instance));
-}
-
 void RadioPlayer::playMedia(QString url)
 {
   _mediaListPlayer->stop();
@@ -163,27 +154,6 @@ void RadioPlayer::playMedia(QString url)
   _mediaListPlayer->play();
 }
 
-
-void RadioPlayer::removeMedia(int idx)
-{
-    _mediaList->removeMedia(idx);
-}
-
-
-
-void RadioPlayer::handleNextItemSet(libvlc_media_t* mediaCore)
-{
-  _currentMedia = NULL;
-  QString url(libvlc_media_get_mrl(mediaCore));
-  qDebug() << "CURRENT MEDIA ITEM: " << url;
-  qDebug() << "CURRENT MEDIA ITEM STATE: " << libvlc_media_get_state(mediaCore);
-  
-  if (libvlc_media_get_state(mediaCore) != libvlc_NothingSpecial) {
-    libvlc_event_manager_t * eventManager = libvlc_media_event_manager(mediaCore);
-    libvlc_event_attach(eventManager, libvlc_MediaMetaChanged, &RadioPlayer::handleMetaChangedEvent, this);
-    _currentMedia = mediaCore;   
-  }
-}
 
 void RadioPlayer::handlePlaying()
 {
@@ -208,42 +178,5 @@ void RadioPlayer::handleMetaChangedEvent(const libvlc_event_t* event, void* play
     Q_EMIT( rp->updateInfo());
   }
 }
-
-QString RadioPlayer::getListItemUrl(int idx)
-{
-  return _mediaList->at(idx)->currentLocation();
-}
-
-
-int RadioPlayer::getCurrentMediaIdx()
-{
-  return _listidx;
-}
-
-void RadioPlayer::loadPlayList()
-{
-  QSettings settings(_settingsFile, QSettings::NativeFormat);
-  int size = settings.beginReadArray("urls");
-  for (int i = 0; i < size; ++i) {
-    settings.setArrayIndex(i);
-    QString url = settings.value("url").toString();
-    
-    VlcMedia *media = new VlcMedia(url, _instance);
-    _mediaList->addMedia(media);
-    delete media;
-  }
-}
-void RadioPlayer::savePlayList()
-{
-  QSettings settings(_settingsFile, QSettings::NativeFormat);
-  int size = _mediaList->count();
-  settings.beginWriteArray("urls");
-  for (int i = 0; i < size; ++i) {
-    settings.setArrayIndex(i);
-    VlcMedia *media = _mediaList->at(i);
-    settings.setValue("url", media->currentLocation());
-  }
-}
-
 
 #include "radioplayer.moc"

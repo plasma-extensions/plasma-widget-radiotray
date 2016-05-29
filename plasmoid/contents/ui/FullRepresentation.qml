@@ -24,6 +24,23 @@ ColumnLayout {
   anchors.leftMargin: negative_margin + 1
   anchors.rightMargin: negative_margin + 1
   
+  ListModel {
+      id: playListModel
+  }
+    
+  RadioPlayerSettings {
+    id: radioPlayerSettings
+    
+    onUpdated: Config.updateModel(radioPlayerSettings, playListModel)
+    Component.onCompleted: {
+      playListView.currentIndex = -1;
+      
+      //playListView.model = none;
+      Config.updateModel(radioPlayerSettings, playListModel)
+      playListView.model = playListModel;      
+    }
+  }
+  
   RadioPlayer {
     id: radioplayer;
     
@@ -44,16 +61,8 @@ ColumnLayout {
     }
     
     Component.onCompleted: {
-      radioplayer.addMedia(plasmoid.configuration.mediaUrl);
-      
-      /* LOG PLAYLIST
-      console.log("list size: " + radioplayer.getMediaListSize());
-      for (var i = 0; i < radioplayer.getMediaListSize(); i ++)
-	console.log(radioplayer.getListItemUrl(i));*/
-      
     }
   }
-  
   
   
   Rectangle {
@@ -176,37 +185,9 @@ ColumnLayout {
     Layout.leftMargin: 21;
     Layout.rightMargin: 21;
 
-    ListView {
+    PlayListView {
       id: playListView
-      model: PlayListModel {}          // concrete model
-      delegate: PlayListDelegate { }   // provide delegate component.
-      
-      headerPositioning: ListView.OverlayHeader
-      header: Rectangle {
-	width: parent.width
-	height: childrenRect.height
-	color: "white"
-	z: 100;
-
-	RowLayout {
-	  spacing: 10
-	  Text {
-	    text: "#";
-	  }
-	  Text {
-	    text: "Station";
-	  }
-	}
-      }
-    
-      highlightFollowsCurrentItem: true
-      highlight: Rectangle {
-	width: parent.width;
-	height: childrenRect.height;
-	color: "lightsteelblue";
-	focus: true
-      }
-      
+      delegate: PlayerPlayListDelegate {}
     }
   }
     

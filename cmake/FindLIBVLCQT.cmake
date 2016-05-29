@@ -29,7 +29,7 @@
 # searching for the same item do nothing.
 
 # Include dir
-FIND_PATH(LIBVLCQT_INCLUDE_DIR vlc-qt/Instance.h
+FIND_PATH(LIBVLCQT_INCLUDE_DIR Instance.h
     "$ENV{LIBVLCQT_INCLUDE_PATH}"
     "$ENV{LIB_DIR}/include"
     "$ENV{LIB_DIR}/include/vlc-qt"
@@ -49,7 +49,7 @@ FIND_LIBRARY(LIBVLCQT_CORE_LIBRARY NAMES vlc-qt PATHS
     c:/msys/local/lib
     NO_DEFAULT_PATH
 )
-FIND_LIBRARY(LIBVLCQT_CORE_LIBRARY NAMES vlc-qt)
+FIND_LIBRARY(LIBVLCQT_CORE_LIBRARY NAMES vlc-qt )
 FIND_LIBRARY(LIBVLCQT_WIDGETS_LIBRARY NAMES vlc-qt-widgets)
 FIND_LIBRARY(LIBVLCQT_QML_LIBRARY NAMES vlc-qt-qml)
 

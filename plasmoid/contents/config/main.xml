@@ -6,9 +6,12 @@
     <kcfgfile name=""/>
 
     <group name="General">
-	<entry name="mediaUrl" type="String">
+	<entry name="mediasUrl" type="StringList">">
 	  <label>Radio urls</label>
-	  <default>file:///home/alexis/Escritorio/pl.xspf</default>
+	  <default>tralala</default>
+        </entry>
+	<entry name="test" type="String">">
+	  <label>Test</label>
         </entry>
     </group>
 </kcfg>
