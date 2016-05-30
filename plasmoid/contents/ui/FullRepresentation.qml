@@ -27,20 +27,24 @@ ColumnLayout {
     id: radioPlayerSettings
 	
     onUpdated: Config.updateModel(radioPlayerSettings, playListModel)
+    
     Component.onCompleted: {
       playListView.currentIndex = -1;
       
       Config.updateModel(radioPlayerSettings, playListModel)
     }
+    
+    
   }
   
     RadioPlayer {
 	id: radioplayer;
 
 	onUpdateInfo: {
+	    /* LOG 
 	    console.log("Refreshing INFO");
-
-	    /* LOG PLAYLIST
+	    
+	    // Playlist
 	    console.log("list size: " + radioplayer.getMediaListSize());
 	    for (var i = 0; i < radioplayer.getMediaListSize(); i ++) 
 	    console.log(radioplayer.getListItemUrl(i));
@@ -52,15 +56,20 @@ ColumnLayout {
 	    genre.text = radioplayer.getMediaGenre();
 	    artwork.source = radioplayer.getMediaArtworkUrl();
 	}
-
+	
+	onFinished: {
+	  console.debug("Handling Player Stopped...");
+	  /*console.debug("PlayList currentIndex: " + playListView.currentIndex);
+	    if (playListView.currentIndex < radioPlayerSettings.getRadioStationsSize()) {
+	      var stationUrl = radioPlayerSettings.getRadioStationUrl(playListView.currentIndex);
+	      radioplayer.playMedia(stationUrl);
+	    }*/
+	}
 	Component.onCompleted: {
-	    radioplayer.addMedia(plasmoid.configuration.mediaUrl);
-
-	    /* LOG PLAYLIST
+	    /* LOG PLAYLIST 
 	    console.log("list size: " + radioplayer.getMediaListSize());
 	    for (var i = 0; i < radioplayer.getMediaListSize(); i ++)
 	    console.log(radioplayer.getListItemUrl(i));*/
-	    
 	}
     }
 
@@ -172,7 +181,7 @@ ColumnLayout {
 	    id: playListView
 	    anchors.fill: parent
 	    model: ListModel { id: playListModel} // concrete model
-	    delegate: PlayListDelegate { }   // provide delegate component.
+	    delegate: PlayerPlayListDelegate { }   // provide delegate component.
 	    spacing: 4
 	}
 
@@ -219,7 +228,7 @@ ColumnLayout {
 		radioplayer.play()
 		iconName = "media-playback-pause"
 		} else {
-		radioplayer.pause()
+		radioplayer.togglePause()
 		iconName = "media-playback-start"
 
 		}
@@ -242,7 +251,6 @@ ColumnLayout {
 	    iconName: "amarok_playlist"
 	    tooltip : i18n("View radio stations")
 	    onClicked: {
-		console.log(info)
 		info.visible = !info.visible
 		playListScroll.visible = !playListScroll.visible 
 	    }

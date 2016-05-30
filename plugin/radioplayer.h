@@ -24,17 +24,14 @@
 #include <QStringList>
 #include <QPixmap>
 
-class VlcInstance;
-class VlcMediaList;
-class VlcMediaPlayer;
-class VlcMediaListPlayer;
-class VlcMetaManager;
-class VlcMedia;
 
-#include <vlc-qt/Enums.h>
-
+struct libvlc_instance_t;
 struct libvlc_media_t;
+struct libvlc_media_list_t;    
+struct libvlc_media_player_t;
+struct libvlc_media_list_player_t;
 
+    
 class RadioPlayer : public QObject
 {
     Q_OBJECT
@@ -43,12 +40,10 @@ public:
     RadioPlayer();
     ~RadioPlayer();
     
-    static void handleMetaChangedEvent(const struct libvlc_event_t * event, void *player);
-
 public Q_SLOTS:
   
   void play();
-  void pause();
+  void togglePause();
   void forward();
   void backward();
   
@@ -60,25 +55,34 @@ public Q_SLOTS:
   void playMedia(QString url);
   int getMediaListSize();
   
-  void handlePlaying();
+private:
+  static void handlePlaying(const struct libvlc_event_t * event, void * userData);
+  static void handleEnd(const struct libvlc_event_t * event, void * userData);
    
 Q_SIGNALS:
    void played();
-   void stopped();
+   void finished();
    void updateInfo();
    
 private:
-    VlcInstance *_instance;
-    VlcMediaListPlayer * _mediaListPlayer;
-    VlcMediaList * _mediaList;
-    // VlcMediaPlayer *_player;
+    libvlc_instance_t *_instance;
+    libvlc_media_player_t * _mediaPlayer;
+    libvlc_media_list_player_t * _mediaListPlayer;
+    libvlc_media_list_t * _mediaList;
+    libvlc_media_t * _currentMedia;
+    
     int _listidx;
     
     // VlcMedia * _currentMedia;
-    libvlc_media_t * _currentMedia;
     //VlcMetaManager * _metaManager;
     
-    // int wait_time=5000;
+    /**
+     * PlayList media items are not handled very well by the VLCPlayList so we must
+     * make an small "cheat" to overcome this issue and detect when our playlist is
+     * ended, so we count the times a item is played and the times a
+     */
+    int _playListExecution;
+    //int wait_time=5000;
     QString _settingsFile;
 };
 
