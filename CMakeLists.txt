@@ -17,7 +17,6 @@ find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Widgets Quick)
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Plasma)
 
 # Add additional libraries
-find_package(LIBVLCQT REQUIRED COMPONENTS Core)
 find_package(LIBVLC REQUIRED COMPONENTS Core)
 
 add_subdirectory(plugin)

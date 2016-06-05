@@ -41,16 +41,6 @@ ColumnLayout {
 	id: radioplayer;
 
 	onUpdateInfo: {
-	    /* LOG 
-	    console.log("Refreshing INFO");
-	    
-	    // Playlist
-	    console.log("list size: " + radioplayer.getMediaListSize());
-	    for (var i = 0; i < radioplayer.getMediaListSize(); i ++) 
-	    console.log(radioplayer.getListItemUrl(i));
-	    var idx = radioplayer.getCurrentMediaIdx();
-	    console.log("Track idx: " + idx);*/
-
 	    title.text = radioplayer.getMediaTitle() 
 	    ratio.text = radioplayer.getMediaBitrate() + "kb";
 	    genre.text = radioplayer.getMediaGenre();
@@ -58,19 +48,25 @@ ColumnLayout {
 	}
 	
 	onFinished: {
+	  console.debug("Handling Player Finished...");
+	  console.debug("PlayList currentIndex: " + playListView.currentIndex);
+	  if (playListView.currentIndex < radioPlayerSettings.getRadioStationsSize() - 1) {
+          playListView.currentIndex ++;
+          var stationUrl = radioPlayerSettings.getRadioStationUrl(playListView.currentIndex);
+          radioplayer.playMedia(stationUrl);
+      }
+        
+    }
+	onStopped: {
 	  console.debug("Handling Player Stopped...");
-	  /*console.debug("PlayList currentIndex: " + playListView.currentIndex);
-	    if (playListView.currentIndex < radioPlayerSettings.getRadioStationsSize()) {
-	      var stationUrl = radioPlayerSettings.getRadioStationUrl(playListView.currentIndex);
-	      radioplayer.playMedia(stationUrl);
-	    }*/
+	  console.debug("RadioPlayer currentIndex: " + radioplayer.getCurrentTrack());
+	  if (radioplayer.getCurrentTrack() < radioplayer.getTrackCount()) {
+	    radioplayer.next();
+	  }
 	}
+	
 	Component.onCompleted: {
-	    /* LOG PLAYLIST 
-	    console.log("list size: " + radioplayer.getMediaListSize());
-	    for (var i = 0; i < radioplayer.getMediaListSize(); i ++)
-	    console.log(radioplayer.getListItemUrl(i));*/
-	}
+        }
     }
 
     Rectangle {

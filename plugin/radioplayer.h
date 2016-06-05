@@ -30,22 +30,31 @@ struct libvlc_media_t;
 struct libvlc_media_list_t;    
 struct libvlc_media_player_t;
 struct libvlc_media_list_player_t;
-
+struct libvlc_event_manager_t;
     
 class RadioPlayer : public QObject
 {
     Q_OBJECT
 
+    enum State{
+      RADIO_READY = 0,
+      RADIO_BUSY = 0,
+      RADIO_PLAYING,
+      RADIO_PAUSED,
+      RADIO_FINISHED,
+      RADIO_ERROR
+    };
 public:
     RadioPlayer();
     ~RadioPlayer();
     
 public Q_SLOTS:
   
-  void play();
+  void next();
   void togglePause();
-  void forward();
-  void backward();
+
+  State getState();
+  QString getErrorMsg();
   
   QString getMediaTitle();
   QString getMediaGenre();
@@ -53,36 +62,31 @@ public Q_SLOTS:
   QString getMediaBitrate();
   
   void playMedia(QString url);
-  int getMediaListSize();
+  int getCurrentTrack();
+  int getTrackCount();
   
 private:
-  static void handlePlaying(const struct libvlc_event_t * event, void * userData);
-  static void handleEnd(const struct libvlc_event_t * event, void * userData);
-   
+  static void handleMediaListPlayerEvents(const struct libvlc_event_t * event, void * userData);
+  static void handleMediaPlayerEvents(const struct libvlc_event_t * event, void * userData);
+  
+  void createCoreConnections();
+  void removeCoreConnections();
+  libvlc_media_t * getCurrentMedia();
+  
 Q_SIGNALS:
    void played();
+   void stopped();
    void finished();
    void updateInfo();
    
 private:
     libvlc_instance_t *_instance;
-    libvlc_media_player_t * _mediaPlayer;
     libvlc_media_list_player_t * _mediaListPlayer;
-    libvlc_media_list_t * _mediaList;
-    libvlc_media_t * _currentMedia;
     
-    int _listidx;
-    
-    // VlcMedia * _currentMedia;
-    //VlcMetaManager * _metaManager;
-    
-    /**
-     * PlayList media items are not handled very well by the VLCPlayList so we must
-     * make an small "cheat" to overcome this issue and detect when our playlist is
-     * ended, so we count the times a item is played and the times a
-     */
-    int _playListExecution;
-    //int wait_time=5000;
+    int _listPosition;
+    int _size;
+    State _state;
+    bool _propagateEvents;
     QString _settingsFile;
 };
 

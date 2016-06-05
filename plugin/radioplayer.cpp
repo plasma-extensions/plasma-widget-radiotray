@@ -32,66 +32,147 @@
 
 RadioPlayer::RadioPlayer()
 {
-    char ** args;
+    char ** args = NULL;
     _instance =  libvlc_new(0, args);
     libvlc_set_user_agent(_instance, "RadioPlayer Widget 0.1", "RadioPlayer/0.1");
 
-    _mediaPlayer = libvlc_media_player_new(_instance);
     _mediaListPlayer = libvlc_media_list_player_new(_instance);
-    _mediaList = NULL;
-    _currentMedia = NULL;
+    createCoreConnections();
 
-    libvlc_media_list_player_set_media_player(_mediaListPlayer, _mediaPlayer);
-    // Listen for media list player events
-    libvlc_event_manager_t * eventManager= libvlc_media_list_player_event_manager(_mediaListPlayer);
-
-    eventManager = libvlc_media_player_event_manager(_mediaPlayer);
-    libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, handlePlaying, this);
-    libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, handleEnd, this);
-
+	_propagateEvents = true;
     qDebug() << "RadioPlayer: Crated.";
 }
 
 RadioPlayer::~RadioPlayer() {
-    libvlc_event_manager_t * eventManager= libvlc_media_list_player_event_manager(_mediaListPlayer);
-
-    libvlc_media_player_release(_mediaPlayer);
+    removeCoreConnections();
     libvlc_media_list_player_release(_mediaListPlayer);
-    libvlc_media_list_release(_mediaList);
     libvlc_release(_instance);
     qDebug() << "RadioPlayer: Destroyed.";
 }
 
-void RadioPlayer::play()
+
+void RadioPlayer::createCoreConnections()
 {
-    qDebug() << "RadioPlayer: Play.";
-    if (_currentMedia != NULL)
-      libvlc_media_list_player_play_item(_mediaListPlayer, _currentMedia);
+    // Connect MediaListPlayer Events
+	Q_ASSERT(_mediaListPlayer);
+    libvlc_event_manager_t* _vlcEvents = libvlc_media_list_player_event_manager(_mediaListPlayer);
+    QList<libvlc_event_e> list;
+    list << libvlc_MediaListPlayerPlayed
+         << libvlc_MediaListPlayerNextItemSet
+         << libvlc_MediaListPlayerStopped;
+
+    foreach(const libvlc_event_e &event, list) {
+        libvlc_event_attach(_vlcEvents, event, handleMediaListPlayerEvents, this);
+    }
+    
+    // Connect MediaPlayer Events
+    list.clear();
+	libvlc_media_player_t * mp = libvlc_media_list_player_get_media_player(_mediaListPlayer);
+    libvlc_event_manager_t * mpEvents = libvlc_media_player_event_manager(mp);
+	libvlc_media_player_release(mp);
+	
+    list << libvlc_MediaPlayerEncounteredError
+         << libvlc_MediaPlayerStopped
+         << libvlc_MediaPlayerPlaying
+         << libvlc_MediaPlayerPlaying
+         << libvlc_MediaPlayerPaused;
+		 
+
+    foreach(const libvlc_event_e &event, list) {
+        libvlc_event_attach(mpEvents, event, handleMediaPlayerEvents, this);
+    }
+    
+}
+RadioPlayer::State RadioPlayer::getState()
+{
+    switch (libvlc_media_list_player_get_state(_mediaListPlayer)) {
+    case libvlc_NothingSpecial:
+    case libvlc_Opening:
+    case libvlc_Buffering:
+        return RADIO_BUSY;
+    case libvlc_Playing:
+        return RADIO_PLAYING;
+    case libvlc_Paused:
+        return RADIO_PAUSED;
+    case libvlc_Stopped:
+    case libvlc_Ended:
+        return RadioPlayer::RADIO_FINISHED;
+    case libvlc_Error:
+        return RADIO_ERROR;
+    }
+    return RADIO_READY;
+}
+
+QString RadioPlayer::getErrorMsg()
+{
+    return QString(libvlc_errmsg());
+}
+
+
+void RadioPlayer::removeCoreConnections()
+{
+    // Disconnect MediaListPlayer Events
+    Q_ASSERT(_mediaListPlayer);
+    libvlc_event_manager_t* _vlcEvents = libvlc_media_list_player_event_manager(_mediaListPlayer);
+    QList<libvlc_event_e> list;
+    list << libvlc_MediaListPlayerPlayed
+         << libvlc_MediaListPlayerNextItemSet
+         << libvlc_MediaListPlayerStopped;
+
+    foreach(const libvlc_event_e &event, list) {
+        libvlc_event_detach(_vlcEvents, event, handleMediaListPlayerEvents, this);
+    }
+
+    // Disconnect MediaPlayer Events
+    list.clear();
+	libvlc_media_player_t * mp = libvlc_media_list_player_get_media_player(_mediaListPlayer);
+    libvlc_event_manager_t * mpEvents = libvlc_media_player_event_manager(mp);
+	libvlc_media_player_release(mp);
+	
+    list << libvlc_MediaPlayerEncounteredError
+         << libvlc_MediaPlayerStopped
+         << libvlc_MediaPlayerPlaying
+         << libvlc_MediaPlayerPlaying
+         << libvlc_MediaPlayerPaused;
+		 
+
+    foreach(const libvlc_event_e &event, list) {
+        libvlc_event_detach(mpEvents, event, handleMediaPlayerEvents, this);
+	}
 }
 
 void RadioPlayer::togglePause()
 {
     qDebug() << "RadioPlayer: pause";
-    libvlc_media_player_pause(_mediaPlayer);
+    libvlc_media_player_t *player = libvlc_media_list_player_get_media_player(_mediaListPlayer);
+    libvlc_media_player_pause(player);
+    libvlc_media_player_release(player);
 }
 
-void RadioPlayer::backward()
+void RadioPlayer::next()
 {
-    libvlc_media_list_player_previous(_mediaListPlayer);
+    _listPosition ++;
+    libvlc_media_list_player_play_item_at_index(_mediaListPlayer, _listPosition);
 }
 
-void RadioPlayer::forward()
-{
-    libvlc_media_list_player_next(_mediaListPlayer);
-}
-
-QString RadioPlayer::getMediaArtworkUrl()
+/**
+ * Esure to release media after usage with libvlc_media_release.
+ */
+libvlc_media_t* RadioPlayer::getCurrentMedia()
 {
     libvlc_media_player_t *player = libvlc_media_list_player_get_media_player(_mediaListPlayer);
     libvlc_media_t * media = libvlc_media_player_get_media(player);
+    libvlc_media_player_release(player);
+    return media;
+}
 
+
+QString RadioPlayer::getMediaArtworkUrl()
+{
+    libvlc_media_t * media = getCurrentMedia();
     if (media != NULL) {
         char * value = libvlc_media_get_meta(media, libvlc_meta_ArtworkURL);
+        libvlc_media_release(media);
         if (value != NULL) {
             QString sValue(value);
             delete value;
@@ -104,14 +185,15 @@ QString RadioPlayer::getMediaArtworkUrl()
 
 QString RadioPlayer::getMediaBitrate()
 {
-    return QString::number(libvlc_media_player_get_fps(_mediaPlayer));
+    return QString::number(0);
 }
 
 QString RadioPlayer::getMediaTitle()
 {
-    libvlc_media_t * media = libvlc_media_player_get_media(_mediaPlayer);
+    libvlc_media_t * media = getCurrentMedia();
     if (media != NULL) {
         char * value = libvlc_media_get_meta(media, libvlc_meta_Title);
+        libvlc_media_release(media);
         if (value != NULL) {
             QString sValue(value);
             delete value;
@@ -123,10 +205,10 @@ QString RadioPlayer::getMediaTitle()
 
 QString RadioPlayer::getMediaGenre()
 {
-    libvlc_media_player_t *player = libvlc_media_list_player_get_media_player(_mediaListPlayer);
-    libvlc_media_t * media = libvlc_media_player_get_media(player);
+    libvlc_media_t * media = getCurrentMedia();
     if (media != NULL) {
         char * value = libvlc_media_get_meta(media, libvlc_meta_Genre);
+        libvlc_media_release(media);
         if (value != NULL) {
             QString sValue(value);
             delete value;
@@ -137,84 +219,116 @@ QString RadioPlayer::getMediaGenre()
 }
 
 
-int RadioPlayer::getMediaListSize()
+int RadioPlayer::getTrackCount()
 {
-    return libvlc_media_list_count(_mediaList);
+    return _size;
+}
+int RadioPlayer::getCurrentTrack()
+{
+    return _listPosition;
 }
 
 
 void RadioPlayer::playMedia(QString url)
 {
+	_propagateEvents = false;
+    libvlc_media_list_player_stop(_mediaListPlayer);
+
     qDebug() << "RadioPlayer: Playing media: " << url;
 
-    if (_mediaListPlayer != NULL)
-        libvlc_media_list_player_stop(_mediaListPlayer);
+    libvlc_media_t *md;
+    libvlc_media_list_t *ml;
+
+    md = libvlc_media_new_location(_instance, url.toLocal8Bit());
+    Q_ASSERT(md);
+
+    libvlc_media_parse(md);
+
+    ml = libvlc_media_list_new (_instance);
+    libvlc_media_list_t* subitems = libvlc_media_subitems(md);
+    int subitemsCount = libvlc_media_list_count(subitems);
+    if (subitemsCount > 0) {
+        qDebug() << "RadioPlayer: Current media subitems count " << subitemsCount;
+
+        _listPosition = 0;
+        _size = subitemsCount;
+
+        for (int i = 0; i < subitemsCount; i ++) {
+            libvlc_media_t * media = libvlc_media_list_item_at_index(subitems, i);
+            libvlc_media_list_add_media(ml, media);
+            libvlc_media_release(media);
+        }
+        
+        libvlc_media_list_release(subitems);
+    } else {
+        _size = 1;
+        _listPosition = 1;
+        Q_ASSERT (ml != NULL);
+        libvlc_media_list_add_media (ml, md);
+        libvlc_media_release(md);
+    }
 
 
-    if (_mediaList != NULL)
-        libvlc_media_list_release(_mediaList);
+    
+    Q_ASSERT(_mediaListPlayer != NULL);
+	Q_ASSERT(ml != NULL);
+    libvlc_media_list_player_set_media_list (_mediaListPlayer, ml);
+    libvlc_media_list_release(ml);
 
-    _mediaList = libvlc_media_list_new(_instance);
-
-
-    libvlc_media_t * media = libvlc_media_new_location(_instance, url.toLocal8Bit());
-    _currentMedia = media;
-    libvlc_media_list_add_media(_mediaList, media);
-
-    libvlc_media_list_player_set_media_list(_mediaListPlayer, _mediaList);
+	_propagateEvents = true;
     libvlc_media_list_player_play(_mediaListPlayer);
 }
 
-void RadioPlayer::handlePlaying(const struct libvlc_event_t * event, void * userData)
+void RadioPlayer::handleMediaListPlayerEvents(const struct libvlc_event_t * event, void * userData)
 {
-    qDebug() << "RadioPlayer: handlePlaying";
-    RadioPlayer * rp = (RadioPlayer*) userData;
-    if (rp == NULL) {
-        qWarning() << "RadioPlayer: Unable to cast userData to RadioPlayer instance" ;
-        return;
-    }
-    
-    // Detect if the current media is a playlist, and add its items to the list
-    libvlc_media_list_t * subItems = libvlc_media_subitems(rp->_currentMedia);
-    if (libvlc_media_list_count(subItems) > 0 ) {
-      qDebug() << "RadioPlayer: played media has subitems: " << libvlc_media_list_count(subItems);
-
-      libvlc_media_list_player_set_media_list(rp->_mediaListPlayer, rp->_mediaList);
-      for (int i =0; i < libvlc_media_list_count(subItems); i++) {
-	libvlc_media_t * media = libvlc_media_list_item_at_index(subItems, i);
-	qDebug() << "Adding " << libvlc_media_get_mrl(media);
-	libvlc_media_list_add_media(rp->_mediaList, media);
-      }
-    }
-    
-    // Update Current Media
-    rp->_currentMedia = libvlc_media_player_get_media(rp->_mediaPlayer);
-
-    if (libvlc_media_get_state(rp->_currentMedia) == libvlc_Playing) {
-        //qDebug() << "RadioPlayer: UpdateInfo SIGNAL triggered";
-        Q_EMIT(rp->updateInfo());
-    }
-}
-
-void RadioPlayer::handleEnd(const struct libvlc_event_t * event, void * userData)
-{
-    qDebug() << "RadioPlayer: handleEnd";
+    qDebug() << "RadioPlayer: MediaListPlayerEvent recieved " << libvlc_event_type_name(event->type);
     RadioPlayer * rp = (RadioPlayer*) userData;
     if (rp == NULL) {
         qWarning() << "RadioPlayer: Unable to cast userData to RadioPlayer instance" ;
         return;
     }
 
-
-    int idx = libvlc_media_list_index_of_item(rp->_mediaList, rp->_currentMedia);
-    qDebug() << "RadioPlayer:\n\t\tCurrent media: " << libvlc_media_get_mrl(rp->_currentMedia) << "\n\t\tIdx: " << idx;
-    if (idx < libvlc_media_list_count(rp->_mediaList)-1)
-      libvlc_media_list_player_next(rp->_mediaListPlayer);
-    else {
-      // qDebug() << "RadioPlayer: finished SIGNAL triggered";
-      Q_EMIT(rp->finished());
+    switch(event->type)    {
+    case libvlc_MediaListPlayerPlayed:
+		if (rp->_propagateEvents)
+			emit rp->played();
+        break;
+    case libvlc_MediaListPlayerNextItemSet:
+        qDebug () << event->u.media_list_player_next_item_set.item;
+        if (event->u.media_list_player_next_item_set.item == NULL) {
+            if (rp->_listPosition < rp->_size) {
+				if (rp->_propagateEvents)
+					Q_EMIT(rp->stopped());
+			}else {
+                if (rp->_propagateEvents)
+					Q_EMIT(rp->finished());
+			}
+        }
+        break;
+    case libvlc_MediaListPlayerStopped:
+		if (rp->_propagateEvents)
+			emit rp->stopped();
+        break;
+    default:
+        break;
     }
 }
 
+void RadioPlayer::handleMediaPlayerEvents(const libvlc_event_t* event, void* userData)
+{
+    qDebug() << "RadioPlayer: MediaPlayerEvent recieved " << libvlc_event_type_name(event->type);
+    RadioPlayer * rp = (RadioPlayer*) userData;
+    if (rp == NULL) {
+        qWarning() << "RadioPlayer: Unable to cast userData to RadioPlayer instance" ;
+        return;
+    }
+    
+    switch(event->type) {
+		case libvlc_MediaPlayerPlaying:
+			if (rp->_propagateEvents)
+				Q_EMIT(rp->updateInfo());
+			break;
+	}
+}
 
 #include "radioplayer.moc"
