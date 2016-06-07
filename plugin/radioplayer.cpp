@@ -86,21 +86,21 @@ void RadioPlayer::createCoreConnections()
 RadioPlayer::State RadioPlayer::getState()
 {
     switch (libvlc_media_list_player_get_state(_mediaListPlayer)) {
-    case libvlc_NothingSpecial:
-    case libvlc_Opening:
-    case libvlc_Buffering:
-        return RADIO_BUSY;
-    case libvlc_Playing:
-        return RADIO_PLAYING;
-    case libvlc_Paused:
-        return RADIO_PAUSED;
-    case libvlc_Stopped:
-    case libvlc_Ended:
-        return RadioPlayer::RADIO_FINISHED;
-    case libvlc_Error:
-        return RADIO_ERROR;
+        case libvlc_NothingSpecial:
+        case libvlc_Opening:
+        case libvlc_Buffering:
+            return RadioPlayer::RADIO_BUSY;
+        case libvlc_Playing:
+            return RadioPlayer::RADIO_PLAYING;
+        case libvlc_Paused:
+            return RadioPlayer::RADIO_PAUSED;
+        case libvlc_Stopped:
+        case libvlc_Ended:
+            return RadioPlayer::RADIO_FINISHED;
+        case libvlc_Error:
+            return RadioPlayer::RADIO_ERROR;
     }
-    return RADIO_READY;
+    return RadioPlayer::RADIO_READY;
 }
 
 QString RadioPlayer::getErrorMsg()
@@ -143,7 +143,7 @@ void RadioPlayer::removeCoreConnections()
 
 void RadioPlayer::togglePause()
 {
-    qDebug() << "RadioPlayer: pause";
+    // qDebug() << "RadioPlayer: pause";
     libvlc_media_player_t *player = libvlc_media_list_player_get_media_player(_mediaListPlayer);
     libvlc_media_player_pause(player);
     libvlc_media_player_release(player);
@@ -179,7 +179,7 @@ QString RadioPlayer::getMediaArtworkUrl()
             return sValue;
         }
     }
-    //FIXME: RETURN DEFAULT ARTWORK IMAGE
+    
     return "../images/media-album-cover-manager-amarok.svg";
 }
 
@@ -187,15 +187,17 @@ QString RadioPlayer::getMediaBitrate()
 {
     QString bitRate = "";
     libvlc_media_t * media = getCurrentMedia();
-    libvlc_media_track_t ** tracks;
-    unsigned int count = libvlc_media_tracks_get(media, &tracks);
-    libvlc_media_release(media);
-    if (count > 0) {
-       bitRate += QString::number(tracks[0]->audio->i_rate / 1000);
-    } else
-        bitRate = "0";
-    
-    libvlc_media_tracks_release(tracks, count);
+    if (media != NULL) {
+        libvlc_media_track_t ** tracks;
+        unsigned int count = libvlc_media_tracks_get(media, &tracks);
+        libvlc_media_release(media);
+        if (count > 0) {
+        bitRate += QString::number(tracks[0]->audio->i_rate / 1000);
+        } else
+            bitRate = "0";
+        
+        libvlc_media_tracks_release(tracks, count);
+    }
     return bitRate;
 }
 
@@ -292,7 +294,7 @@ void RadioPlayer::playMedia(QString url)
 
 void RadioPlayer::handleMediaListPlayerEvents(const struct libvlc_event_t * event, void * userData)
 {
-    qDebug() << "RadioPlayer: MediaListPlayerEvent recieved " << libvlc_event_type_name(event->type);
+    // qDebug() << "RadioPlayer: MediaListPlayerEvent recieved " << libvlc_event_type_name(event->type);
     RadioPlayer * rp = (RadioPlayer*) userData;
     if (rp == NULL) {
         qWarning() << "RadioPlayer: Unable to cast userData to RadioPlayer instance" ;
@@ -327,7 +329,7 @@ void RadioPlayer::handleMediaListPlayerEvents(const struct libvlc_event_t * even
 
 void RadioPlayer::handleMediaPlayerEvents(const libvlc_event_t* event, void* userData)
 {
-    qDebug() << "RadioPlayer: MediaPlayerEvent recieved " << libvlc_event_type_name(event->type);
+    // qDebug() << "RadioPlayer: MediaPlayerEvent recieved " << libvlc_event_type_name(event->type);
     RadioPlayer * rp = (RadioPlayer*) userData;
     if (rp == NULL) {
         qWarning() << "RadioPlayer: Unable to cast userData to RadioPlayer instance" ;
