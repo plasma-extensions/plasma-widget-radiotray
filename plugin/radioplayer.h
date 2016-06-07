@@ -36,15 +36,18 @@ class RadioPlayer : public QObject
 {
     Q_OBJECT
 
+public:
+    Q_PROPERTY(State state READ getState USER true)
     enum State{
-      RADIO_READY = 0,
-      RADIO_BUSY = 0,
+      RADIO_READY,
+      RADIO_BUSY,
       RADIO_PLAYING,
       RADIO_PAUSED,
       RADIO_FINISHED,
       RADIO_ERROR
     };
-public:
+    Q_ENUM(State)
+    
     RadioPlayer();
     ~RadioPlayer();
     
@@ -85,7 +88,6 @@ private:
     
     int _listPosition;
     int _size;
-    State _state;
     bool _propagateEvents;
     QString _settingsFile;
 };

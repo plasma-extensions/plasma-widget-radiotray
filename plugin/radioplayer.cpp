@@ -185,7 +185,18 @@ QString RadioPlayer::getMediaArtworkUrl()
 
 QString RadioPlayer::getMediaBitrate()
 {
-    return QString::number(0);
+    QString bitRate = "";
+    libvlc_media_t * media = getCurrentMedia();
+    libvlc_media_track_t ** tracks;
+    unsigned int count = libvlc_media_tracks_get(media, &tracks);
+    libvlc_media_release(media);
+    if (count > 0) {
+       bitRate += QString::number(tracks[0]->audio->i_rate / 1000);
+    } else
+        bitRate = "0";
+    
+    libvlc_media_tracks_release(tracks, count);
+    return bitRate;
 }
 
 QString RadioPlayer::getMediaTitle()
