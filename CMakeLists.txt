@@ -20,7 +20,7 @@ find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Plasma)
 find_package(LIBVLC REQUIRED COMPONENTS Core)
 
 add_subdirectory(plugin)
-# add_subdirectory(translations)
+add_subdirectory(translations)
 
 plasma_install_package(plasmoid org.plasma-light.radio)
 

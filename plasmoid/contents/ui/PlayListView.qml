@@ -53,7 +53,7 @@ Rectangle {
                         Layout.leftMargin: 5;
                         Layout.minimumWidth: 100; Layout.maximumWidth: 100;
                         
-                        text: "Name";
+                        text: i18n("Name");
                         id: nameHeader;
                         //width: 100;
                         //width: 40; height: itemsHeight;
@@ -61,14 +61,14 @@ Rectangle {
             
                     Text {
                         Layout.minimumWidth: 100; Layout.maximumWidth: 100;
-                        text: "Genre";
+                        text: i18n("Genre");
                         width: 100;
                         //anchors.fill: parent;
                     }
                     Text {
                         id: urlHeader;
                         //width: 80;
-                        text: "Url";
+                        text: i18n("Url");
                         //anchors.fill: parent;
                     }
                 }
