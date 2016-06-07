@@ -1,7 +1,6 @@
 set(plasmoidplugin_SRCS
     plasmoidplugin.cpp
     radioplayer.cpp
-    radioplayersettings.cpp
 
     qmldir
     )

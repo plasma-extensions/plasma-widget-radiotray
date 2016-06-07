@@ -10,33 +10,34 @@ import org.kde.private.radioplayer 1.0
 import '../code/Config.js' as Config
 
 
-ColumnLayout {
-  id: root
-  anchors.fill: parent
+Item {
+    id: root
+    // anchors.fill: parent
 
-  property int negative_margin: -7
-  anchors.topMargin: negative_margin 
-  anchors.bottomMargin: negative_margin
+    width: 313;
+    height: 210;
 
-  anchors.leftMargin: negative_margin + 1
-  anchors.rightMargin: negative_margin + 1
+    property int negative_margin: -7
+    anchors.topMargin: negative_margin 
+    anchors.bottomMargin: negative_margin + 24
 
+    anchors.leftMargin: negative_margin + 1
+    anchors.rightMargin: negative_margin + 1
 
-  
-  RadioPlayerSettings {
-    id: radioPlayerSettings
-	
-    onUpdated: Config.updateModel(radioPlayerSettings, playListModel)
     
-    Component.onCompleted: {
-      playListView.currentIndex = -1;
-      
-      Config.updateModel(radioPlayerSettings, playListModel)
+    ListModel {
+        id: stationsModel
     }
-    
-    
-  }
-  
+      
+    property string radioStationsRaw: plasmoid.configuration.radioStations;
+    onRadioStationsRawChanged: {
+        stationsModel.clear()
+        var stations = Config.getResourcesObjectArray()
+        stations.forEach(function (stationObj) {
+            stationsModel.append(stationObj)
+        })
+    }
+
     RadioPlayer {
 	id: radioplayer;
 
@@ -48,18 +49,18 @@ ColumnLayout {
 	}
 	
 	onFinished: {
-	  console.debug("Handling Player Finished...");
-	  console.debug("PlayList currentIndex: " + playListView.currentIndex);
-	  if (playListView.currentIndex < radioPlayerSettings.getRadioStationsSize() - 1) {
+	  // console.debug("Handling Player Finished...");
+	  // console.debug("PlayList currentIndex: " + playListView.currentIndex);
+	  if (playListView.currentIndex < stationsModel.count - 1) {
           playListView.currentIndex ++;
-          var stationUrl = radioPlayerSettings.getRadioStationUrl(playListView.currentIndex);
+          var stationUrl = stationsModel.get(playListView.currentIndex).url;
           radioplayer.playMedia(stationUrl);
       }
         
     }
 	onStopped: {
-	  console.debug("Handling Player Stopped...");
-	  console.debug("RadioPlayer currentIndex: " + radioplayer.getCurrentTrack());
+	  // console.debug("Handling Player Stopped...");
+	  // console.debug("RadioPlayer currentIndex: " + radioplayer.getCurrentTrack());
 	  if (radioplayer.getCurrentTrack() < radioplayer.getTrackCount()) {
 	    radioplayer.next();
 	  }
@@ -72,125 +73,132 @@ ColumnLayout {
     Rectangle {
 	id: header
 
+	anchors.top: parent.top;
+	anchors.left: parent.left; anchors.right: parent.right;
+    
 	color: "#3DAEE9"
-	height: header_text.height + 8;
-	Layout.fillWidth: true
-	Layout.fillHeight: true
+	height: 40;
 	
 	    Text {
 		id: header_text
-		anchors.top: parent.top
+		//anchors.top: parent.top
 		anchors.left: parent.left
+		anchors.verticalCenter: parent.verticalCenter
 		anchors.leftMargin: 10 
-		anchors.topMargin: 4
-		color: "white"
+		anchors.topMargin: 16; anchors.bottomMargin: 10;
+		
+        color: "white"
 		text: i18n("Radio"); 
 		font.family: "Noto Sans"; font.pointSize: 12;
 	    }
     }
 
-    GridLayout {
-	id: info
-	//columnSpacing: 4
-	columns: 6
-	rows: 7
-	Layout.maximumWidth: 400; /*Layout.maximumHeight: 21;*/
+      
+        GridLayout {
+            id: info;
 
-	Item {
-	    Layout.column: 1
-	    Layout.row: 1
-	    width: 20
-	    height: 8
-	}
-	Item {
-	    Layout.column: 5
-	    Layout.row: 1
-	    width: 20
-	}
+            columns: 2;
+            rows: 4;
 
-	Label {
-	    Layout.column: 2
-	    Layout.row: 2
-	    text: i18n("Now Playing:")
-	    font.family: "Noto Sans"; font.pointSize: 12;
-	}
+            anchors.top: header.bottom; anchors.bottom: ctr_box.top;
+            anchors.left: parent.left; anchors.right: parent.right;
+            anchors.leftMargin: 21; anchors.rightMargin: 21;
+            anchors.topMargin: 15; anchors.bottomMargin: 10;
 
-	Label {
-	    id: title
-	    Layout.column: 2
-	    Layout.row: 3
-	    Layout.preferredWidth: 150;
-	    Layout.maximumWidth: 150;
-	    wrapMode: Text.WrapAnywhere
-	    elide: Text.ElideRight
-	    maximumLineCount: 1;
-	    text: i18n("Nothing...")
-	    font.family: "Noto Sans"; font.pointSize: 10;
-	}
 
-	Label {
-	    id: ratio
-	    Layout.column: 2
-	    Layout.row: 4
-	    Layout.preferredWidth: 50;
-	    Layout.maximumWidth: 50;
-	    wrapMode: Text.WrapAnywhere
-	    elide: Text.ElideRight
-	    maximumLineCount: 1;
+            Label {
+                Layout.column: 1
+                Layout.row: 1
+                text: i18n("Now Playing:")
+                font.family: "Noto Sans"; font.pointSize: 12;
+            }
 
-	    text: i18n("0.0 kbit/s")
-	    font.family: "Noto Sans"; font.pointSize: 10;
-	}
+            Label {
+                id: title
+                Layout.column: 1
+                Layout.row: 2
+                Layout.preferredWidth: 150;
+                Layout.maximumWidth: 150;
+                wrapMode: Text.WrapAnywhere
+                elide: Text.ElideRight
+                maximumLineCount: 1;
+                text: i18n("Nothing...")
+                font.family: "Noto Sans"; font.pointSize: 10;
+            }
 
-	Label {
-	    id: genre
-	    Layout.column: 2
-	    Layout.row: 5
-	    Layout.preferredWidth: 150;
-	    Layout.maximumWidth: 150;
-	    wrapMode: Text.WrapAnywhere
-	    elide: Text.ElideRight
-	    maximumLineCount: 1;
-	    text: i18n("Genre")
-	    font.family: "Noto Sans"; font.pointSize: 10;
-	}
+            Label {
+                id: ratio
+                Layout.column: 1
+                Layout.row: 3
+                Layout.preferredWidth: 50;
+                Layout.maximumWidth: 50;
+                wrapMode: Text.WrapAnywhere
+                elide: Text.ElideRight
+                maximumLineCount: 1;
 
-	Image {
-	    id: artwork 
-	    Layout.column: 4
-	    Layout.row: 2
-	    Layout.rowSpan: 3
-	    Layout.margins: 2
-	    sourceSize.width: 88
-	    sourceSize.height: 88
-	    fillMode: Image.PreserveAspectFit
-	    source: radioplayer.getMediaArtworkUrl()
-	}
+                text: i18n("0.0 kbit/s")
+                font.family: "Noto Sans"; font.pointSize: 10;
+            }
 
-    }
-  
-    ScrollView { 
-	id: playListScroll
-	visible: false
+            Label {
+                id: genre
+                Layout.column: 1
+                Layout.row: 4
+                Layout.preferredWidth: 150;
+                Layout.maximumWidth: 150;
+                wrapMode: Text.WrapAnywhere
+                elide: Text.ElideRight
+                maximumLineCount: 1;
+                text: i18n("Genre")
+                font.family: "Noto Sans"; font.pointSize: 10;
+            }
 
-	PlayListView {
-	    id: playListView
-	    anchors.fill: parent
-	    model: ListModel { id: playListModel} // concrete model
-	    delegate: PlayerPlayListDelegate { }   // provide delegate component.
-	    spacing: 4
-	}
+            Image {
+                id: artwork 
+                Layout.column: 2
+                Layout.row: 1
+                Layout.rowSpan: 4
+                Layout.margins: 2
+                sourceSize.width: 88
+                sourceSize.height: 88
+                fillMode: Image.PreserveAspectFit
+                source: radioplayer.getMediaArtworkUrl()
+            }
 
-    }
-    
-    Item {
-	height: 16
-    }
+        }
+
+        PlayListView {
+            id: playListView;
+            model: stationsModel
+            
+            visible: false
+            
+            anchors.top: header.bottom; anchors.bottom: ctr_box.top;
+            anchors.left: parent.left; anchors.right: parent.right;
+            anchors.leftMargin: 21; anchors.rightMargin: 21;
+            anchors.topMargin: 15; anchors.bottomMargin: 10;
+        
+            //visible: true;
+            
+            //Layout.fillWidth: true;
+            Layout.minimumHeight: 100; Layout.maximumHeight: 100;
+            Layout.minimumWidth: 400; Layout.maximumWidth: 400;
+            Layout.topMargin: 20 
+            
+           
+            onItemClicked: radioplayer.playMedia(item.url);
+        }
+
+    //}
   
     RowLayout {
 	id: ctr_box
-	Layout.alignment: Qt.AlignHCenter
-	Layout.bottomMargin: 17
+	
+	anchors.bottom: parent.bottom;
+    //anchors.left: parent.left; anchors.right: parent.right;
+    
+	/*Layout.alignment: Qt.AlignHCenter
+	Layout.bottomMargin: 17*/
 
 
 	Button {
@@ -215,21 +223,31 @@ ColumnLayout {
 	}
 
 	Button {
-	    id: play_btn
-	    Layout.rightMargin: 16
-	    iconName: "media-playback-start"
-	    tooltip : i18n("Play radio station")
-	    onClicked: {
-	    if ( iconName == "media-playback-start") {
-		radioplayer.play()
-		iconName = "media-playback-pause"
-		} else {
-		radioplayer.togglePause()
-		iconName = "media-playback-start"
-
-		}
-	    }
-	}
+        id: play_btn;
+        Layout.rightMargin: 16;
+        
+        state: "paused";
+        states: [
+            State {
+                name: "playing";
+                PropertyChanges {
+                    target: play_btn;
+                    tooltip : i18n("Stop radio station");
+                    iconName:"media-playback-pause";
+                    onClicked: radioplayer.togglePause(); 
+                }
+            },
+            State {
+                name: "paused";
+                PropertyChanges {
+                    target: play_btn;
+                    iconName: "media-playback-start";
+                    onClicked: radioplayer.togglePause();
+                    tooltip : i18n("Play radio station");
+                }
+            }
+        ]
+    }
 
 	Button {
 	    id: forward_btn
@@ -247,8 +265,8 @@ ColumnLayout {
 	    iconName: "amarok_playlist"
 	    tooltip : i18n("View radio stations")
 	    onClicked: {
-		info.visible = !info.visible
-		playListScroll.visible = !playListScroll.visible 
+            info.visible = !info.visible
+            playListView.visible = !playListView.visible                
 	    }
 	}
     }

@@ -180,7 +180,7 @@ QString RadioPlayer::getMediaArtworkUrl()
         }
     }
     //FIXME: RETURN DEFAULT ARTWORK IMAGE
-    return "media-album-cover-manager-amarok";
+    return "../images/media-album-cover-manager-amarok.svg";
 }
 
 QString RadioPlayer::getMediaBitrate()
