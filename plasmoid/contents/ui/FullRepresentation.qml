@@ -45,6 +45,8 @@ Item {
         id: radioplayer;
         property int playMode: 0;
         
+        onPlayModeChanged: PlayUtils.genPlayList(radioplayer.playMode, stationsModel.count, playListView.currentIndex);
+        
         onUpdateInfo: info.refresh();
         
         onFinished: {
@@ -245,9 +247,46 @@ Item {
 	    Layout.rightMargin: 36
 	    iconName: "media-playlist-shuffle"
 	    tooltip : i18n("Shuffle radio stations")
-	    onClicked: {
 
-	    }
+        state: "consecutive";
+        states: [
+            State {
+                name: "consecutive";
+                PropertyChanges {
+                    target: playmode_btn;
+                    tooltip : i18n("Consecutive play");
+                    iconName:"media-playlist-consecutive";
+                    onClicked: {
+                        radioplayer.playMode = 1;
+                        playmode_btn.state = "shuffle";
+                    }
+                }
+            },
+            State {
+                name: "shuffle";
+                PropertyChanges {
+                    target: playmode_btn;
+                    iconName: "media-playlist-shuffle";
+                    tooltip : i18n("Shuffled play");
+                    onClicked: {
+                        radioplayer.playMode = 2;
+                        playmode_btn.state = "loop";
+                    }
+                }
+            },
+            State {
+                name: "loop";
+                PropertyChanges {
+                    target: playmode_btn;
+                    iconName: "media-playlist-repeat";
+                    tooltip : i18n("Loop play");
+                    onClicked: {
+                        radioplayer.playMode = 0;
+                        playmode_btn.state = "consecutive";
+                    }
+                }
+            }
+        ]
 	}
 
 	Button {
@@ -270,7 +309,7 @@ Item {
                 name: "playing";
                 PropertyChanges {
                     target: play_btn;
-                    tooltip : i18n("Stop radio station");
+                    tooltip : i18n("Pause radio station");
                     iconName:"media-playback-pause";
                     onClicked: {
                         radioplayer.togglePause();
@@ -294,7 +333,7 @@ Item {
                 name: "stoped";
                 PropertyChanges {
                     target: play_btn;
-                    tooltip : i18n("Stop radio station");
+                    tooltip : i18n("Play radio station");
                     iconName:"media-playback-start";
                     onClicked: {
                         radioplayer.playItemAt(playListView.currentIndex);
