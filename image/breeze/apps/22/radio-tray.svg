@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="22"
+   height="22"
+   viewBox="0 0 22 22.000001"
+   id="svg4335"
+   version="1.1"
+   inkscape:version="0.91 r"
+   sodipodi:docname="radio-tray.svg">
+  <defs
+     id="defs4337" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="19.096875"
+     inkscape:cx="23.868161"
+     inkscape:cy="13.332868"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     units="px"
+     inkscape:showpageshadow="false"
+     borderlayer="true"
+     inkscape:window-width="2560"
+     inkscape:window-height="1027"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4134" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4340">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1030.3621)">
+    <path
+       style="display:inline;opacity:1;fill:#4d4d4d;fill-opacity:1;stroke:none"
+       d="m 10.70703,1033.3621 -0.7070303,0.707 4.2929703,4.293 -12.2929707,0 0,11 18.0000007,0 0,-11 -4.29297,0 -5,-5 z m -7.7070307,6 12.2929707,0 1.41406,0 2.29297,0 0,9 -16.0000007,0 0,-9 z m 4.5000003,1 a 3.5000002,3.5000002 0 0 0 -3.5000002,3.5 3.5000002,3.5000002 0 0 0 3.5000002,3.5 3.5000002,3.5000002 0 0 0 3.5000004,-3.5 3.5000002,3.5000002 0 0 0 -3.5000004,-3.5 z m 0,1 a 2.5000001,2.5000001 0 0 1 2.5000001,2.5 2.5000001,2.5000001 0 0 1 -2.5000001,2.5 2.5000001,2.5000001 0 0 1 -2.5000002,-2.5 2.5000001,2.5000001 0 0 1 2.5000002,-2.5 z m 5.5000004,0 0,1 5,0 0,-1 -5,0 z m 0,2 0,1 5,0 0,-1 -5,0 z m 0,2 0,1 5,0 0,-1 -5,0 z"
+       id="rect4703"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
