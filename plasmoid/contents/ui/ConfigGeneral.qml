@@ -136,12 +136,12 @@ Item {
             columns: 2
             anchors.left: parent.left; anchors.right: parent.right;
             
-            Label {Layout.row: 0; Layout.column: 1; text: i18n("URL:")}
-            TextField {Layout.row: 0; Layout.column: 2;  id: urlTextField; Layout.fillWidth: true;}
-            Label {Layout.row: 1; Layout.column: 1; text: i18n("Name:")}
-            TextField {Layout.row: 1; Layout.column: 2;  id: nameTextField; Layout.fillWidth: true;}
-            Label {Layout.row: 2; Layout.column: 1; text: i18n("Genre:")}
-            TextField {Layout.row: 2; Layout.column: 2;  id: genreTextField; Layout.fillWidth: true;}
+            Label {Layout.row: 0; Layout.column: 0; text: i18n("URL:")}
+            TextField {Layout.row: 0; Layout.column: 1;  id: urlTextField; Layout.fillWidth: true;}
+            Label {Layout.row: 1; Layout.column: 0; text: i18n("Name:")}
+            TextField {Layout.row: 1; Layout.column: 1;  id: nameTextField; Layout.fillWidth: true;}
+            Label {Layout.row: 2; Layout.column: 0; text: i18n("Genre:")}
+            TextField {Layout.row: 2; Layout.column: 1;  id: genreTextField; Layout.fillWidth: true;}
         }
         
         onAccepted: {
